@@ -1,9 +1,11 @@
 package org.messplacement.messsecond;
 
+import org.messplacement.messsecond.DTO.StudentDue;
 import org.messplacement.messsecond.Entities.Student;
 import org.messplacement.messsecond.Service.MessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException; // Import for handling unique constraint violations
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus; // Import for HTTP status codes
 import org.springframework.http.ResponseEntity; // Import for returning custom HTTP responses
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +27,21 @@ public class Controller {
     }
 
     @GetMapping("/getStudents")
-    public List<Student> getStudents(){
-        return messService.getStudents();
+    public List<Student> getStudents(
+            // @RequestParam("date") tells Spring to look for a 'date' parameter in the URL.
+            // @DateTimeFormat is crucial for correctly converting the "YYYY-MM-DD" string to a LocalDate object.
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        return this.messService.getStudents(date);
+    }
+    // --- THIS IS THE NEW ENDPOINT --
+    // It expects two query parameters: 'startDate' and 'endDate'.
+    @GetMapping("/students/dues")
+    public List<StudentDue> getTotalDues(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return this.messService.getTotalDues(startDate, endDate);
     }
 
     @GetMapping("/students/{Reg}")
